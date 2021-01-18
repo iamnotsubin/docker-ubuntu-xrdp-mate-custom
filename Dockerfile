@@ -34,7 +34,16 @@ RUN cd /root && \
         ubuntu-mate-icon-themes \
         ubuntu-mate-themes \
         tightvncserver \
-        pulseaudio && \
+        mplayer \
+        screen \
+        pulseaudio \
+        pavucontrol \
+        npm \
+        git \
+        python \
+        make \
+        build-essential \
+        python3-pip && \ 
     apt-get install --no-install-recommends -yqq \
         supervisor \
         sudo \
@@ -46,7 +55,7 @@ RUN cd /root && \
         curl \
         wget \
         wmctrl \
-        epiphany-browser && \
+        firefox && \
     ln -fs /usr/share/zoneinfo/UTC /etc/localtime && dpkg-reconfigure -f noninteractive tzdata && \
     apt-get -y install \
         git \
@@ -75,6 +84,12 @@ RUN cd /root && \
         libpulse-dev m4 intltool dpkg-dev \
         libfdk-aac-dev \
         libopus-dev \
+        npm \
+        git \
+        python \
+        make \
+        build-essential \
+        python3-pip \
         libmp3lame-dev && \ 
     apt-get update && apt build-dep pulseaudio -y && \
     cd /tmp && apt source pulseaudio && \
@@ -88,13 +103,23 @@ RUN cd /root && \
     git clone -b devel https://github.com/neutrinolabs/xorgxrdp.git && \
     cd /root/xrdp && ./bootstrap && ./configure --enable-fuse --enable-jpeg --enable-vsock --enable-fdkaac --enable-opus --enable-mp3lame --enable-pixman && make && make install && \
     cd /root/xorgxrdp  && ./bootstrap && ./configure && make && make install && \
+    cd /home && \
+    git clone https://github.com/rojserbest/VoiceChatPyroBot.git vcbot && \
+    git clone https://github.com/botgram/shell-bot.git && \
+    cd /home/vcbot && \
+    pip3 install -U -r requirements.txt && \
+    cd /home/shell-bot && \
+    npm install && \
+    cd /home && \
+    wget https://telegram.org/dl/desktop/linux -O tdesktop.tar.xz && tar -xf tdesktop.tar.xz && rm tdesktop.tar.xz && \
     cd /root && \
     rm -R /root/xrdp && \
     rm -R /root/xorgxrdp && \
+    
     # bugfix clipboard bug: [xrdp-chansrv] <defunct> && \
     apt-mark manual libfdk-aac1 && \
     apt-get -y purge \
-        git \
+    
         libxfont-dev \
         libx11-dev \
         libxfixes-dev \
@@ -113,7 +138,6 @@ RUN cd /root && \
         python-libxml2 \
         nasm \
         xserver-xorg-dev \
-        build-essential \
         pkg-config \
         libfdk-aac-dev \
         libopus-dev \
@@ -122,6 +146,22 @@ RUN cd /root && \
     apt-get -y autoclean && apt-get -y autoremove && \
     apt-get -y purge $(dpkg --get-selections | grep deinstall | sed s/deinstall//g) && \
     rm -rf /var/lib/apt/lists/*  && \
+    apt update && apt -y upgrade && \
+    apt-get install -yqq \
+        git \
+        pavucontrol \
+        nano \
+        npm \
+        make \
+        build-essential && \
+    cd /home/vcbot && \
+    pip3 install -U -r requirements.txt && \
+    cd /home/shell-bot && \
+    npm install && \
+    cd /home && \
+    wget https://telegram.org/dl/desktop/linux -O tdesktop.tar.xz && tar -xf tdesktop.tar.xz && rm tdesktop.tar.xz && \
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && dpkg -i google-chrome-stable_current_amd64.deb && \
+    apt-get -y install -f && dpkg -i google-chrome-stable_current_amd64.deb && \
     echo "mate-session" > /etc/skel/.xsession && \
     sed -i '/TerminalServerUsers/d' /etc/xrdp/sesman.ini  && \
     sed -i '/TerminalServerAdmins/d' /etc/xrdp/sesman.ini  && \
@@ -148,7 +188,7 @@ RUN cd /root && \
 #    echo "user = messagebus"  >> /etc/supervisor/conf.d/dbus-daemon.conf
 
 COPY xrdp.ini /etc/xrdp/xrdp.ini
-
+COPY script.sh /home/
 COPY autostartup.sh /root/
 CMD ["/bin/bash", "/root/autostartup.sh"]
                                     
